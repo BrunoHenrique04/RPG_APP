@@ -1,4 +1,5 @@
-﻿using AppRpgEtec.Services.Usuarios;
+﻿using AppRpgEtec.Models;
+using AppRpgEtec.Services.Usuarios;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,9 +14,23 @@ namespace AppRpgEtec.ViewModels.Usuarios
     public class UsuarioViewModel : BaseViewModel
     {
 
-        
+
         private UsuarioService _uService;
         public ICommand AutenticarCommand { get; set; }
+
+
+        public UsuarioViewModel()
+        {
+            _uService = new UsuarioService();
+            InicializarCommands();
+
+        }
+        public void InicializarCommands()
+        {
+
+            AutenticarCommand = new Command(async () => AutenticarUsuario());
+            
+        }
 
 
 
@@ -23,11 +38,11 @@ namespace AppRpgEtec.ViewModels.Usuarios
         private string login = string.Empty;
         
         public string Login 
-        { 
-            get => login; 
+        {
+            get { return login;  }
             set
             {
-                Login = value;
+                login = value;
                 OnPropertychanged();
 
             } 
@@ -35,7 +50,7 @@ namespace AppRpgEtec.ViewModels.Usuarios
 
         public string Password 
         { 
-            get => password;
+            get { return password; }
 
             set
             {
@@ -51,7 +66,44 @@ namespace AppRpgEtec.ViewModels.Usuarios
 
         #endregion
 
+        public async Task AutenticarUsuario()
+        {
+            try
+            {
+                Usuario u = new Usuario();
+                u.Username = login;
+                u.PasswordString = password;
 
+                Usuario uAutentico = await _uService.AutenticarUsuarioAsync(u);
+
+                if (!string.IsNullOrEmpty(u.Token))
+
+                {
+                    string mensagem = $"Bem bindo {u.Username}";
+                    Preferences.Set("UsuarioToken", uAutentico.Token);
+                    Preferences.Set("UsuarioId", uAutentico.Id);
+                    Preferences.Set("UsuarioUsername", uAutentico.Username);
+                    Preferences.Set("UsuarioToken", uAutentico.Perfil);
+
+                    await Application.Current.MainPage.DisplayAlert("Informação", mensagem, "Ok");
+
+                    Application.Current.MainPage = new MainPage();
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Informação", "Dados incorretos", "Ok");
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+                await Application.Current.MainPage.DisplayAlert("Informação", ex.Message + "Detalhes: " + ex.InnerException, "Ok");
+
+            }
+
+
+        }
 
 
     }
