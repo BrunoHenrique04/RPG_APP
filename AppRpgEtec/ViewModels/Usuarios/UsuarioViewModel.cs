@@ -14,14 +14,14 @@ namespace AppRpgEtec.ViewModels.Usuarios
     public class UsuarioViewModel : BaseViewModel
     {
 
-
+        string token = Preferences.Get("UsuarioToken", string.Empty);
         private UsuarioService _uService;
         public ICommand AutenticarCommand { get; set; }
 
 
         public UsuarioViewModel()
         {
-            _uService = new UsuarioService();
+            _uService = new UsuarioService(token);
             InicializarCommands();
 
         }
