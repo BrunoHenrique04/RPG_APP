@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -65,6 +66,34 @@ namespace AppRpgEtec.ViewModels.Usuarios
 
 
         #endregion
+
+        #region Metodos
+        public async Task RegistrarUsuario()
+        {
+            try
+            {
+                Usuario u = new Usuario();
+                u.Username = Login;
+                u.PasswordString = Password;
+
+                Usuario uRegistrado = await uService.PostRegistrarUsuarioAsync(u); //TODO: corrigir uService Aula04 P:S 9.17
+
+                if (uRegistrado.Id != 0)
+                {
+                    String mensagem = $"Usuario Id {uRegistrado.Id} registrado com sucesso";
+                    await Application.Current.MainPage.DisplayAlert("Informações", mensagem, "Ok");
+
+                    await Application.Current.MainPage
+                            .Navigation.PopAsync();
+                }
+            }
+            catch (Exception ex) 
+            {
+                await Application.Current.MainPage
+                        .DisplayAlert("Informações", ex.Message + " Detalhes: " + ex.InnerException, "Ok");
+            }
+        } //TODO: Continuar da Aula04 P:S 9.18
+
 
         public async Task AutenticarUsuario()
         {
