@@ -35,7 +35,7 @@ namespace AppRpgEtec.ViewModels.Usuarios
 
             AutenticarCommand = new Command(async () => AutenticarUsuario());
             RegistrarCommand = new Command(async () => RegistrarUsuario());
-           // DirecionarCadastroCommand = new Command(async () => DirecionarCadastro());
+           DirecionarCadastroCommand = new Command(async () => DirecionarCadastro());
         }
 
 
@@ -138,21 +138,23 @@ namespace AppRpgEtec.ViewModels.Usuarios
 
 
         }
-        /*
+        
         public async Task DirecionarCadastro()
         {
             try
             {
                 await Application.Current.MainPage.
-                        Navigation.PushAsync(new CadastroView());
+                        Navigation.PushAsync(new CadastrarView());
             }
             catch (Exception ex)
             {
 
+                await Application.Current.MainPage.DisplayAlert("Informações", ex.Message + "Detalhes" + ex.InnerException, "Ok");
+
             }
 
         }
-        */
+        
         #endregion
 
     }
