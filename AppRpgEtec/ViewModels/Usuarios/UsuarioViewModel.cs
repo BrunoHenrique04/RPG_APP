@@ -1,5 +1,7 @@
 ﻿using AppRpgEtec.Models;
 using AppRpgEtec.Services.Usuarios;
+using AppRpgEtec.Views.Personagens;
+using AppRpgEtec.Views.Usuarios;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,6 +20,8 @@ namespace AppRpgEtec.ViewModels.Usuarios
         string token = Preferences.Get("UsuarioToken", string.Empty);
         private UsuarioService _uService;
         public ICommand AutenticarCommand { get; set; }
+        public ICommand RegistrarCommand { get; set; }
+        public ICommand DirecionarCadastroCommand { get; set; }
 
 
         public UsuarioViewModel()
@@ -30,7 +34,8 @@ namespace AppRpgEtec.ViewModels.Usuarios
         {
 
             AutenticarCommand = new Command(async () => AutenticarUsuario());
-            
+            RegistrarCommand = new Command(async () => RegistrarUsuario());
+           // DirecionarCadastroCommand = new Command(async () => DirecionarCadastro());
         }
 
 
@@ -76,7 +81,7 @@ namespace AppRpgEtec.ViewModels.Usuarios
                 u.Username = Login;
                 u.PasswordString = Password;
 
-                Usuario uRegistrado = await uService.PostRegistrarUsuarioAsync(u); //TODO: corrigir uService Aula04 P:S 9.17
+                Usuario uRegistrado = await _uService.PostRegistrarUsuarioAsync(u); //TODO: corrigir uService Aula04 P:S 9.17
 
                 if (uRegistrado.Id != 0)
                 {
@@ -105,18 +110,18 @@ namespace AppRpgEtec.ViewModels.Usuarios
 
                 Usuario uAutentico = await _uService.AutenticarUsuarioAsync(u);
 
-                if (!string.IsNullOrEmpty(u.Token))
+                if (!string.IsNullOrEmpty(uAutentico.Token))
 
                 {
-                    string mensagem = $"Bem bindo {u.Username}";
+                    string mensagem = $"Bem vindo {uAutentico.Username}";
                     Preferences.Set("UsuarioToken", uAutentico.Token);
                     Preferences.Set("UsuarioId", uAutentico.Id);
                     Preferences.Set("UsuarioUsername", uAutentico.Username);
-                    Preferences.Set("UsuarioToken", uAutentico.Perfil);
+                    Preferences.Set("UsuarioPerfil", uAutentico.Perfil);
 
                     await Application.Current.MainPage.DisplayAlert("Informação", mensagem, "Ok");
 
-                    Application.Current.MainPage = new MainPage();
+                    Application.Current.MainPage = new ListagemView();
                 }
                 else
                 {
@@ -133,7 +138,22 @@ namespace AppRpgEtec.ViewModels.Usuarios
 
 
         }
+        /*
+        public async Task DirecionarCadastro()
+        {
+            try
+            {
+                await Application.Current.MainPage.
+                        Navigation.PushAsync(new CadastroView());
+            }
+            catch (Exception ex)
+            {
 
+            }
+
+        }
+        */
+        #endregion
 
     }
 }
