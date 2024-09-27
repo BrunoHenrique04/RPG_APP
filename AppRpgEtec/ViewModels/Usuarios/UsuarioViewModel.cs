@@ -1,5 +1,6 @@
 ﻿using AppRpgEtec.Models;
 using AppRpgEtec.Services.Usuarios;
+using AppRpgEtec.Views;
 using AppRpgEtec.Views.Personagens;
 using AppRpgEtec.Views.Usuarios;
 using System;
@@ -81,7 +82,7 @@ namespace AppRpgEtec.ViewModels.Usuarios
                 u.Username = Login;
                 u.PasswordString = Password;
 
-                Usuario uRegistrado = await _uService.PostRegistrarUsuarioAsync(u); //TODO: corrigir uService Aula04 P:S 9.17
+                Usuario uRegistrado = await _uService.PostRegistrarUsuarioAsync(u);
 
                 if (uRegistrado.Id != 0)
                 {
@@ -97,7 +98,7 @@ namespace AppRpgEtec.ViewModels.Usuarios
                 await Application.Current.MainPage
                         .DisplayAlert("Informações", ex.Message + " Detalhes: " + ex.InnerException, "Ok");
             }
-        } //TODO: Continuar da Aula04 P:S 9.18
+        } 
 
 
         public async Task AutenticarUsuario()
@@ -121,7 +122,7 @@ namespace AppRpgEtec.ViewModels.Usuarios
 
                     await Application.Current.MainPage.DisplayAlert("Informação", mensagem, "Ok");
 
-                    Application.Current.MainPage = new ListagemView();
+                    Application.Current.MainPage = new CadastroPersonagemView(); //ListagemView(); 
                 }
                 else
                 {

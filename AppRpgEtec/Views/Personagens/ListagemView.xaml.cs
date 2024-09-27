@@ -15,4 +15,10 @@ public partial class ListagemView : ContentPage
 		Title = "Personagens - App RPG ETEC";
 
 	}
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        _ = viewModel.ObterPersonagens();
+    }
 }

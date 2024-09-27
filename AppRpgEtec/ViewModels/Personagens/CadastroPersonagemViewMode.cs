@@ -1,4 +1,5 @@
 ﻿using AppRpgEtec.Models;
+using AppRpgEtec.Models.Enuns;
 using AppRpgEtec.Services.Personagens;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,8 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
+
 
 namespace AppRpgEtec.ViewModels.Personagens
 {
@@ -14,16 +17,18 @@ namespace AppRpgEtec.ViewModels.Personagens
     {
         private PersonagensServices pService;
 
+        public ICommand SalvarCommand { get; }
+
         public CadastroPersonagemViewMode()
         {
-            string token = Preferences.Get("UsuarioToken",string.Empty);
+            string token = Preferences.Get("UsuarioToken", string.Empty);
             pService = new PersonagensServices(token);
+            _ = ObterClasse();
 
-
-
+            SalvarCommand = new Command(async () => { await SalvarPersonagem(); });
         }
 
-        #region  aTRIOBUTO E PROPIEDADES
+
 
         private int id;
         private string nome;
@@ -34,16 +39,16 @@ namespace AppRpgEtec.ViewModels.Personagens
         private int disputas;
         private int vitorias;
         private int derrotas;
-        
+
         public int Id
-        { 
+        {
             get => id;
-            set 
-            { 
+            set
+            {
                 id = value;
                 OnPropertychanged();
             }
-        
+
         }
 
         public string Nome
@@ -140,10 +145,10 @@ namespace AppRpgEtec.ViewModels.Personagens
 
             set
             {
-                if (value == null)
+                if (value != null)
                 {
-                      listaTiposClasse = value;
-                      OnPropertychanged();
+                    listaTiposClasse = value;
+                    OnPropertychanged();
                 }
             }
         }
@@ -151,15 +156,67 @@ namespace AppRpgEtec.ViewModels.Personagens
 
         public async Task ObterClasse()
         {
-            ListaTiposClasse = new ObservableCollection<TipoClasse>();
-            ListaTiposClasse.Add(new TipoClasse { Id = 1, Descricao = "Cavaleiro" });
-            ListaTiposClasse.Add(new TipoClasse { Id = 2, Descricao = "Mago" });
-            ListaTiposClasse.Add(new TipoClasse { Id = 3, Descricao = "Clerigo" });
-            OnPropertychanged(nameof(ListaTipoClasse));
+            try
+            {
+                ListaTiposClasse = new ObservableCollection<TipoClasse>();
+                ListaTiposClasse.Add(new TipoClasse() { Id = 1, Descricao = "Cavaleiro" });
+                ListaTiposClasse.Add(new TipoClasse() { Id = 2, Descricao = "Mago" });
+                ListaTiposClasse.Add(new TipoClasse() { Id = 3, Descricao = "Clerigo" });
+                OnPropertychanged(nameof(ListaTiposClasse));
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Ops", ex.Message + " Detalhes: " + ex.InnerException, "Ok");
+            }
 
 
         }
 
+        private TipoClasse tipoClasseSelecionado;
+        public TipoClasse TipoClasseSelecionado
+        {
+            get { return tipoClasseSelecionado; }
+            set
+            {
+                if (value != null)
+                {
+                    tipoClasseSelecionado = value;
+                    OnPropertychanged();
+                }
+            }
+        }
+
+        public async Task SalvarPersonagem()
+        {
+            try
+            {
+                Personagem model = new Personagem()
+                {
+                    Nome = this.nome,
+                    PontosVida = this.pontosVida,
+                    Defesa = this.defesa,
+                    Derrotas = this.derrotas,
+                    Disputas = this.disputas,
+                    Forca = this.forca,
+                    Inteligencia = this.inteligencia,
+                    Vitorias = this.vitorias,
+                    Id = this.id,
+                    Classe = (ClasseEnum)TipoClasseSelecionado.Id
+                };
+                if (model.Id == 0)
+                    await pService.PostPersonagemAsync(model);
+
+                await Application.Current.MainPage.DisplayAlert("Mensagem", "Dados salvos com sucesso", "Ok");
+
+                await Shell.Current.GoToAsync(".."); //remove a pagina atual da pilha de paginas
+
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage
+                    .DisplayAlert("Ops", ex.Message + " Detalhes: " + ex.InnerException, "Ok");
+            }
+        }
 
 
 
